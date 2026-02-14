@@ -1,0 +1,165 @@
+# ============================================
+# Spring Kafka Configuration for All Services
+# Add this to each microservice's application.yml
+# ============================================
+
+---
+# Common Kafka Configuration (All Services)
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    
+    # Producer Configuration
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        linger.ms: 1
+        batch.size: 16384
+        max.in.flight.requests.per.connection: 5
+        enable.idempotence: true
+    
+    # Consumer Configuration
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: ${spring.application.name}
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      properties:
+        spring.json.trusted.packages: "*"
+        isolation.level: read_committed
+    
+    # Listener Configuration
+    listener:
+      ack-mode: manual
+      concurrency: 3
+      poll-timeout: 3000
+
+---
+# ACCOUNT SERVICE - Specific Topics
+account-service:
+  kafka:
+    topics:
+      account-created: account.created
+      account-updated: account.updated
+      account-closed: account.closed
+      balance-changed: account.balance.changed
+      statement-generated: account.statement.generated
+
+---
+# CUSTOMER SERVICE - Specific Topics
+customer-service:
+  kafka:
+    topics:
+      customer-registered: customer.registered
+      customer-updated: customer.updated
+      kyc-verified: customer.kyc.verified
+      kyc-rejected: customer.kyc.rejected
+      status-changed: customer.status.changed
+
+---
+# LOAN SERVICE - Specific Topics
+loan-service:
+  kafka:
+    topics:
+      application-submitted: loan.application.submitted
+      application-approved: loan.application.approved
+      application-rejected: loan.application.rejected
+      loan-disbursed: loan.disbursed
+      payment-received: loan.payment.received
+      payment-overdue: loan.payment.overdue
+      payment-missed: loan.payment.missed
+      loan-paid-off: loan.paid.off
+
+---
+# CARD SERVICE - Specific Topics
+card-service:
+  kafka:
+    topics:
+      card-issued: card.issued
+      card-activated: card.activated
+      card-blocked: card.blocked
+      transaction-authorized: card.transaction.authorized
+      transaction-declined: card.transaction.declined
+      limit-exceeded: card.limit.exceeded
+      card-expired: card.expired
+
+---
+# TRANSACTION SERVICE - Specific Topics
+transaction-service:
+  kafka:
+    topics:
+      transaction-initiated: transaction.initiated
+      transaction-completed: transaction.completed
+      transaction-failed: transaction.failed
+      transaction-reversed: transaction.reversed
+      transaction-disputed: transaction.disputed
+      transaction-approved: transaction.approved
+      transaction-rejected: transaction.rejected
+
+---
+# LEDGER SERVICE - Specific Topics
+ledger-service:
+  kafka:
+    topics:
+      entry-posted: ledger.entry.posted
+      journal-created: ledger.journal.created
+      balance-snapshot: ledger.balance.snapshot
+
+---
+# NOTIFICATION SERVICE - Specific Topics
+notification-service:
+  kafka:
+    topics:
+      email-send: notification.email.send
+      sms-send: notification.sms.send
+      push-send: notification.push.send
+      notification-delivered: notification.delivered
+      notification-failed: notification.failed
+    
+    # Notification Service is a Consumer of many topics
+    consumer:
+      group-id: notification-consumer-group
+      topics:
+        - account.created
+        - account.closed
+        - loan.application.approved
+        - loan.application.rejected
+        - loan.disbursed
+        - loan.payment.overdue
+        - card.issued
+        - card.blocked
+        - transaction.completed
+        - transaction.failed
+        - fraud.alert
+
+---
+# REPORTING SERVICE - Specific Topics
+reporting-service:
+  kafka:
+    topics:
+      report-generated: report.generated
+      report-scheduled: report.scheduled
+    
+    # Reporting consumes from all topics for analytics
+    consumer:
+      group-id: reporting-consumer-group
+
+---
+# FRAUD DETECTION (if implemented as separate service)
+fraud-service:
+  kafka:
+    topics:
+      fraud-alert: fraud.alert
+      transaction-flagged: fraud.transaction.flagged
+      investigation-opened: fraud.investigation.opened
+    
+    consumer:
+      group-id: fraud-consumer-group
+      topics:
+        - transaction.initiated
+        - card.transaction.authorized
+        - account.balance.changed
