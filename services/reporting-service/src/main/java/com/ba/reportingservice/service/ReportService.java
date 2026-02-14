@@ -27,6 +27,7 @@ public class ReportService{
 
     public Report exportReport(Long reportId){
         Report report = getReportById(reportId);
+        return report;
     }
 
     public Report getReportById(Long reportId){
