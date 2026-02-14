@@ -7,7 +7,7 @@ import com.ba.accountservice.model.Account;
 import java.util.List;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account,  Long> {
+public interface AccountRepository extends JpaRepository<Account,   Long> {
 
     List<Account> findByCustomerId(long customerId);
 };
