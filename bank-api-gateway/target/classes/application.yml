@@ -1,0 +1,159 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  
+  cloud:
+    gateway:
+      # Global CORS Configuration
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: 
+              - "http://localhost:3000"
+              - "http://localhost:4200"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowed-headers: "*"
+            allow-credentials: true
+            max-age: 3600
+      
+      # Route Definitions
+      routes:
+        # Account Service Routes
+        - id: account-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/accounts/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: accountServiceCircuitBreaker
+                fallbackUri: forward:/fallback/account-service
+        
+        # Customer Service Routes
+        - id: customer-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/customers/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: customerServiceCircuitBreaker
+                fallbackUri: forward:/fallback/customer-service
+        
+        # Loan Service Routes
+        - id: loan-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/loans/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: loanServiceCircuitBreaker
+                fallbackUri: forward:/fallback/loan-service
+        
+        # Card Service Routes
+        - id: card-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/cards/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: cardServiceCircuitBreaker
+                fallbackUri: forward:/fallback/card-service
+        
+        # Transaction Service Routes
+        - id: transaction-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/transactions/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: transactionServiceCircuitBreaker
+                fallbackUri: forward:/fallback/transaction-service
+        
+        # Ledger Service Routes
+        - id: ledger-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/ledger/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: ledgerServiceCircuitBreaker
+                fallbackUri: forward:/fallback/ledger-service
+        
+        # Notification Service Routes
+        - id: notification-service
+          uri: http://localhost:8087
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: notificationServiceCircuitBreaker
+                fallbackUri: forward:/fallback/notification-service
+        
+        # Reporting Service Routes
+        - id: reporting-service
+          uri: http://localhost:8088
+          predicates:
+            - Path=/api/reports/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: reportingServiceCircuitBreaker
+                fallbackUri: forward:/fallback/reporting-service
+        
+        # Auth Service Routes (Public - No Auth Required)
+        - id: auth-service
+          uri: http://localhost:9000
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
+
+  # Redis Configuration (for rate limiting)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-change-this-in-production}
+  expiration: 86400000 # 24 hours in milliseconds
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG

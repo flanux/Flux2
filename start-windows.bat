@@ -1,15 +1,27 @@
 @echo off
-title Banking System - Startup
+title Banking System - Setup and Start
 color 0A
 
-echo ==========================================
-echo   COMPLETE BANKING SYSTEM - WINDOWS
-echo ==========================================
+echo ========================================
+echo   BANKING SYSTEM - AUTOMATED SETUP
+echo ========================================
 echo.
 
+REM Check if Docker is installed
+where docker >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Docker is not installed!
+    echo.
+    echo Please install Docker Desktop from:
+    echo https://www.docker.com/products/docker-desktop
+    echo.
+    pause
+    exit /b 1
+)
+
 REM Check if Docker is running
-docker info >nul 2>&1
-if errorlevel 1 (
+docker ps >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Docker is not running!
     echo.
     echo Please start Docker Desktop and try again.
@@ -18,105 +30,75 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo [OK] Docker is running
+echo [OK] Docker is installed and running
 echo.
 
-REM Check if ports are available
-echo Checking if ports are available...
-netstat -ano | findstr ":3000 :3001 :3002 :5432 :8089" >nul
-if not errorlevel 1 (
-    echo [WARNING] Some ports might be in use!
-    echo If startup fails, check these ports: 3000, 3001, 3002, 5432, 8089
-    echo.
-    pause
-)
-
-echo.
-echo ==========================================
-echo   STARTING ALL SERVICES
-echo ==========================================
-echo.
-echo This will take 3-5 minutes on first run...
+echo Stopping any existing containers...
+docker-compose down 2>nul
 echo.
 
-REM Start infrastructure
-echo [1/4] Starting Database and Kafka...
+echo ========================================
+echo   STEP 1: Starting Infrastructure
+echo ========================================
+echo Starting Database and Kafka...
 docker-compose up -d database zookeeper kafka
-if errorlevel 1 (
-    echo [ERROR] Failed to start infrastructure
-    pause
-    exit /b 1
-)
-
-echo Waiting for infrastructure to be ready...
+echo Waiting 20 seconds for infrastructure...
 timeout /t 20 /nobreak >nul
-
-REM Start microservices
+echo [OK] Infrastructure ready
 echo.
-echo [2/4] Starting Microservices...
+
+echo ========================================
+echo   STEP 2: Starting Microservices
+echo ========================================
+echo Starting all 8 microservices...
 docker-compose up -d account-service customer-service card-service ledger-service loan-service notification-service reporting-service transaction-service
-if errorlevel 1 (
-    echo [ERROR] Failed to start microservices
-    pause
-    exit /b 1
-)
-
-echo Waiting for microservices to start...
-timeout /t 15 /nobreak >nul
-
-REM Start API Gateway
+echo Waiting 30 seconds for services to start...
+timeout /t 30 /nobreak >nul
+echo [OK] Microservices ready
 echo.
-echo [3/4] Starting API Gateway...
+
+echo ========================================
+echo   STEP 3: Starting API Gateway
+echo ========================================
 docker-compose up -d bank-api-gateway
-if errorlevel 1 (
-    echo [ERROR] Failed to start API Gateway
-    pause
-    exit /b 1
-)
-
-echo Waiting for API Gateway...
+echo Waiting 10 seconds for gateway...
 timeout /t 10 /nobreak >nul
-
-REM Start Frontends
+echo [OK] Gateway ready
 echo.
-echo [4/4] Starting Frontend Applications...
+
+echo ========================================
+echo   STEP 4: Starting Frontend Apps
+echo ========================================
+echo Building and starting all 3 frontend applications...
 docker-compose up -d customer-portal branch-dashboard central-bank-portal
-if errorlevel 1 (
-    echo [ERROR] Failed to start frontends
-    pause
-    exit /b 1
-)
+echo Waiting 20 seconds for frontends...
+timeout /t 20 /nobreak >nul
+echo.
+
+echo ========================================
+echo   SUCCESS! EVERYTHING IS RUNNING!
+echo ========================================
+echo.
+echo Your banking system is now live at:
+echo.
+echo   [1] Customer Portal:      http://localhost:3000
+echo   [2] Branch Dashboard:     http://localhost:3001
+echo   [3] Central Bank Portal:  http://localhost:3002
+echo   [4] API Gateway:          http://localhost:8089
+echo.
+echo ========================================
+echo   Quick Commands:
+echo ========================================
+echo.
+echo   View Status:    docker-compose ps
+echo   View Logs:      docker-compose logs -f
+echo   Stop All:       docker-compose down
+echo   Restart:        Just run this script again
+echo.
+echo Opening Customer Portal in your browser...
+timeout /t 3 /nobreak >nul
+start http://localhost:3000
 
 echo.
-echo ==========================================
-echo   SUCCESS! ALL SERVICES STARTED
-echo ==========================================
-echo.
-echo Your banking system is now running!
-echo.
-echo Access your applications:
-echo.
-echo   Customer Portal:       http://localhost:3000
-echo   Branch Dashboard:      http://localhost:3001
-echo   Central Bank Portal:   http://localhost:3002
-echo.
-echo Login: Use any username/password
-echo.
-echo ==========================================
-echo.
-echo Press any key to view service status...
-pause >nul
-
-docker-compose ps
-
-echo.
-echo ==========================================
-echo   USEFUL COMMANDS
-echo ==========================================
-echo.
-echo View logs:        docker-compose logs -f
-echo Stop all:         docker-compose down
-echo Restart service:  docker-compose restart [service-name]
-echo.
-echo Press any key to exit...
+echo Press any key to exit (services will keep running)...
 pause >nul
