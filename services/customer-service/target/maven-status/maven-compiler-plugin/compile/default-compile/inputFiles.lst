@@ -1,0 +1,5 @@
+/workspaces/Flux2/services/customer-service/src/main/java/com/ba/customerservice/CustomerServiceApplication.java
+/workspaces/Flux2/services/customer-service/src/main/java/com/ba/customerservice/controller/CustomerController.java
+/workspaces/Flux2/services/customer-service/src/main/java/com/ba/customerservice/model/Customer.java
+/workspaces/Flux2/services/customer-service/src/main/java/com/ba/customerservice/repository/CustomerRepository.java
+/workspaces/Flux2/services/customer-service/src/main/java/com/ba/customerservice/service/CustomerService.java

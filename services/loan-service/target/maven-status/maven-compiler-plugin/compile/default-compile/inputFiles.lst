@@ -1,0 +1,5 @@
+/workspaces/Flux2/services/loan-service/src/main/java/com/ba/loanservice/LoanServiceApplication.java
+/workspaces/Flux2/services/loan-service/src/main/java/com/ba/loanservice/controller/LoanController.java
+/workspaces/Flux2/services/loan-service/src/main/java/com/ba/loanservice/model/Loan.java
+/workspaces/Flux2/services/loan-service/src/main/java/com/ba/loanservice/repository/LoanRepository.java
+/workspaces/Flux2/services/loan-service/src/main/java/com/ba/loanservice/service/LoanService.java

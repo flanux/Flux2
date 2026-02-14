@@ -1,0 +1,38 @@
+-------------------------------------------------------------------------------
+Test set: com.example.demo.DemoApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.810 s <<< FAILURE! -- in com.example.demo.DemoApplicationTests
+com.example.demo.DemoApplicationTests -- Time elapsed: 0.810 s <<< ERROR!
+java.lang.IllegalStateException: Unable to find a @SpringBootConfiguration by searching packages upwards from the test. You can use @ContextConfiguration, @SpringBootTest(classes=...) or other Spring Test supported mechanisms to explicitly declare the configuration classes to load. Classes annotated with @TestConfiguration are not considered.
+	at org.springframework.util.Assert.state(Assert.java:80)
+	at org.springframework.boot.test.context.SpringBootTestContextBootstrapper.findConfigurationClass(SpringBootTestContextBootstrapper.java:247)
+	at org.springframework.boot.test.context.SpringBootTestContextBootstrapper.getOrFindConfigurationClasses(SpringBootTestContextBootstrapper.java:234)
+	at org.springframework.boot.test.context.SpringBootTestContextBootstrapper.processMergedContextConfiguration(SpringBootTestContextBootstrapper.java:151)
+	at org.springframework.test.context.support.AbstractTestContextBootstrapper.buildMergedContextConfiguration(AbstractTestContextBootstrapper.java:350)
+	at org.springframework.test.context.support.AbstractTestContextBootstrapper.buildDefaultMergedContextConfiguration(AbstractTestContextBootstrapper.java:266)
+	at org.springframework.test.context.support.AbstractTestContextBootstrapper.buildMergedContextConfiguration(AbstractTestContextBootstrapper.java:214)
+	at org.springframework.test.context.support.AbstractTestContextBootstrapper.buildTestContext(AbstractTestContextBootstrapper.java:107)
+	at org.springframework.boot.test.context.SpringBootTestContextBootstrapper.buildTestContext(SpringBootTestContextBootstrapper.java:112)
+	at org.springframework.test.context.TestContextManager.<init>(TestContextManager.java:142)
+	at org.springframework.test.context.TestContextManager.<init>(TestContextManager.java:126)
+	at java.base/java.util.concurrent.ConcurrentHashMap.compute(ConcurrentHashMap.java:1916)
+	at org.springframework.test.context.junit.jupiter.SpringExtension.getTestContextManager(SpringExtension.java:427)
+	at org.springframework.test.context.junit.jupiter.SpringExtension.beforeAll(SpringExtension.java:170)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	Suppressed: java.lang.IllegalStateException: Unable to find a @SpringBootConfiguration by searching packages upwards from the test. You can use @ContextConfiguration, @SpringBootTest(classes=...) or other Spring Test supported mechanisms to explicitly declare the configuration classes to load. Classes annotated with @TestConfiguration are not considered.
+		at org.springframework.util.Assert.state(Assert.java:80)
+		at org.springframework.boot.test.context.SpringBootTestContextBootstrapper.findConfigurationClass(SpringBootTestContextBootstrapper.java:247)
+		at org.springframework.boot.test.context.SpringBootTestContextBootstrapper.getOrFindConfigurationClasses(SpringBootTestContextBootstrapper.java:234)
+		at org.springframework.boot.test.context.SpringBootTestContextBootstrapper.processMergedContextConfiguration(SpringBootTestContextBootstrapper.java:151)
+		at org.springframework.test.context.support.AbstractTestContextBootstrapper.buildMergedContextConfiguration(AbstractTestContextBootstrapper.java:350)
+		at org.springframework.test.context.support.AbstractTestContextBootstrapper.buildDefaultMergedContextConfiguration(AbstractTestContextBootstrapper.java:266)
+		at org.springframework.test.context.support.AbstractTestContextBootstrapper.buildMergedContextConfiguration(AbstractTestContextBootstrapper.java:214)
+		at org.springframework.test.context.support.AbstractTestContextBootstrapper.buildTestContext(AbstractTestContextBootstrapper.java:107)
+		at org.springframework.boot.test.context.SpringBootTestContextBootstrapper.buildTestContext(SpringBootTestContextBootstrapper.java:112)
+		at org.springframework.test.context.TestContextManager.<init>(TestContextManager.java:142)
+		at org.springframework.test.context.TestContextManager.<init>(TestContextManager.java:126)
+		at java.base/java.util.concurrent.ConcurrentHashMap.compute(ConcurrentHashMap.java:1916)
+		at org.springframework.test.context.junit.jupiter.SpringExtension.getTestContextManager(SpringExtension.java:427)
+		at org.springframework.test.context.junit.jupiter.SpringExtension.afterAll(SpringExtension.java:181)
+		... 1 more
+

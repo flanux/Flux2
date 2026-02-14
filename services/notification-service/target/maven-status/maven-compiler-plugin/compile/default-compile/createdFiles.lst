@@ -1,0 +1,5 @@
+com/ba/notificationservice/controller/NotificationController.class
+com/ba/notificationservice/NotificationServiceApplication.class
+com/ba/notificationservice/service/NotificationService.class
+com/ba/notificationservice/model/Notification.class
+com/ba/notificationservice/repository/NotificationRepository.class

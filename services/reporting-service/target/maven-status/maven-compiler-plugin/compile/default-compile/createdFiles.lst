@@ -1,0 +1,5 @@
+com/ba/reportingservice/repository/ReportRepository.class
+com/ba/reportingservice/controller/ReportController.class
+com/ba/reportingservice/model/Report.class
+com/ba/reportingservice/ReportingServiceApplication.class
+com/ba/reportingservice/service/ReportService.class

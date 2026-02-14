@@ -1,0 +1,5 @@
+com/ba/ledgerservice/service/LedgerService.class
+com/ba/ledgerservice/model/Ledger.class
+com/ba/ledgerservice/LedgerServiceApplication.class
+com/ba/ledgerservice/controller/LedgerController.class
+com/ba/ledgerservice/repository/LedgerRepository.class

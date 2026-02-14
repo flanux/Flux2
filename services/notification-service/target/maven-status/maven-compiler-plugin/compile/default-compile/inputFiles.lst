@@ -1,0 +1,5 @@
+/workspaces/Flux2/services/notification-service/src/main/java/com/ba/notificationservice/NotificationServiceApplication.java
+/workspaces/Flux2/services/notification-service/src/main/java/com/ba/notificationservice/controller/NotificationController.java
+/workspaces/Flux2/services/notification-service/src/main/java/com/ba/notificationservice/model/Notification.java
+/workspaces/Flux2/services/notification-service/src/main/java/com/ba/notificationservice/repository/NotificationRepository.java
+/workspaces/Flux2/services/notification-service/src/main/java/com/ba/notificationservice/service/NotificationService.java
