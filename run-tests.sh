@@ -34,7 +34,7 @@ run_service_tests() {
     cd "services/$service" || return 1
     
     if [ -f "pom.xml" ]; then
-        ./mvnw test
+        mvn test
         TEST_RESULT=$?
     elif [ -f "build.gradle" ]; then
         ./gradlew test
