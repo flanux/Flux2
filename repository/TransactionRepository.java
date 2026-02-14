@@ -1,9 +1,9 @@
-package com.ba.transactionservice.repository;
+package com.ba.notificationservice.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.ba.transactionservice.model.Transaction;
+import com.ba.notificationservice.model.Notification;
 import java.util.List;
 
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findByAccountId(Long accountId);
-};
+public interface NotificationRepository extends JpaRepository<Notification, Long> {  // ✅ Clean
+    List<Notification> findByCustomerId(Long customerId);
+};  
