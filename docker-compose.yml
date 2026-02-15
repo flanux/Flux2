@@ -242,6 +242,32 @@ services:
       - banking-network
     restart: unless-stopped
 
+    auth-service:
+      build:
+        context: ./services/auth-service
+        dockerfile: Dockerfile
+      container_name: auth-service
+      ports:
+        - "8090:8080"
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/auth_db
+        SPRING_DATASOURCE_USERNAME: auth_user
+        SPRING_DATASOURCE_PASSWORD: auth_pass_2024
+        SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+        SPRING_REDIS_HOST: redis
+        SPRING_REDIS_PORT: 6379
+        JWT_SECRET: FLUX_PRODUCTION_SECRET_CHANGE_THIS_2026
+      depends_on:
+        database:
+          condition: service_healthy
+        kafka:
+          condition: service_started
+        redis:
+          condition: service_started
+      networks:
+        - banking-network
+      restart: unless-stopped
+
   # ============================================
   # API GATEWAY
   # ============================================
@@ -263,6 +289,7 @@ services:
       - notification-service
       - reporting-service
       - transaction-service
+      - auth-service
     networks:
       - banking-network
     restart: unless-stopped
