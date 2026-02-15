@@ -16,12 +16,15 @@ public class AuthController {
     private final AuthService authService;
     
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
             LoginResponse response = authService.login(request);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body(null);
+            System.err.println("Login failed: " + e.getMessage());  // ADD THIS LOG
+            e.printStackTrace();  // ADD THIS
+            return ResponseEntity.status(401)
+                .body(Map.of("error", e.getMessage()));  // RETURN ERROR MESSAGE
         }
     }
     
