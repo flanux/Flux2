@@ -134,7 +134,7 @@ spring:
   # Redis Configuration (for rate limiting)
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
 
 # JWT Configuration
