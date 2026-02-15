@@ -10,7 +10,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -18,10 +18,16 @@ public class SecurityConfig {
             .cors(cors -> cors.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/health", "/actuator/**").permitAll()
-                .anyRequest().permitAll()  // TEMPORARY - allow everything
+                .requestMatchers(
+                    "/api/auth/login",
+                    "/api/auth/register",
+                    "/api/auth/refresh",
+                    "/api/auth/health",
+                    "/actuator/**"
+                ).permitAll()
+                .anyRequest().permitAll()
             );
-        
+
         return http.build();
     }
 }
