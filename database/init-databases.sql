@@ -38,7 +38,4 @@ CREATE DATABASE transaction_db;
 CREATE USER transaction_user WITH ENCRYPTED PASSWORD 'transaction_2026';
 GRANT ALL PRIVILEGES ON DATABASE transaction_db TO transaction_user;
 
--- Auth service
-CREATE DATABASE auth_db;
-CREATE USER auth_user WITH ENCRYPTED PASSWORD 'auth_pass_2024';
-GRANT ALL PRIVILEGES ON DATABASE auth_db TO auth_user;
+-- Note: auth_db is created by 02-auth-db.sql
