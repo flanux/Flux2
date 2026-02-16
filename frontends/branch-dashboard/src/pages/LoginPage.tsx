@@ -8,16 +8,17 @@ import {
   Button,
   Typography,
   Avatar,
+  CircularProgress,
 } from '@mui/material'
 import { AccountBalance as AccountBalanceIcon } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import { useAuthStore } from '../store/authStore'
+import api from '../services/api'
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    branchCode: '',
   })
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -35,27 +36,20 @@ const LoginPage = () => {
     setLoading(true)
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await api.post('/auth/branch/login', formData)
-      
-      // Simulated login
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const mockUser = {
-        id: '1',
+      const response = await api.post('/auth/login', {
         username: formData.username,
-        name: formData.username.charAt(0).toUpperCase() + formData.username.slice(1),
-        email: `${formData.username}@bank.com`,
-        role: 'Branch Manager',
-        branchCode: formData.branchCode,
-        branchName: `Branch ${formData.branchCode}`,
-      }
+        password: formData.password,
+      })
 
-      login(mockUser, 'mock-jwt-token')
-      toast.success('Login successful!')
-      navigate('/dashboard')
-    } catch (error) {
-      toast.error('Invalid credentials')
+      if (response.data) {
+        const { token, user } = response.data
+        login(user, token)
+        toast.success('Login successful!')
+        navigate('/dashboard')
+      }
+    } catch (error: any) {
+      console.error('Login error:', error)
+      toast.error(error.response?.data?.error || 'Invalid credentials')
     } finally {
       setLoading(false)
     }
@@ -113,16 +107,6 @@ const LoginPage = () => {
               value={formData.password}
               onChange={handleChange}
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="branchCode"
-              label="Branch Code"
-              id="branchCode"
-              value={formData.branchCode}
-              onChange={handleChange}
-            />
             <Button
               type="submit"
               fullWidth
@@ -130,8 +114,11 @@ const LoginPage = () => {
               sx={{ mt: 3, mb: 2 }}
               disabled={loading}
             >
-              {loading ? 'Signing In...' : 'Sign In'}
+              {loading ? <CircularProgress size={24} /> : 'Sign In'}
             </Button>
+            <Typography variant="body2" color="text.secondary" align="center">
+              Demo: manager.ktm / Flux@2026
+            </Typography>
           </Box>
         </Paper>
       </Box>

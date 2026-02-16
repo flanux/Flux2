@@ -8,10 +8,12 @@ import {
   Button,
   Typography,
   Avatar,
+  CircularProgress,
 } from '@mui/material'
 import { AccountBalance as AccountBalanceIcon } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import { useAuthStore } from '../store/authStore'
+import api from '../services/api'
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -34,26 +36,20 @@ const LoginPage = () => {
     setLoading(true)
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await api.post('/auth/central/login', formData)
-      
-      // Simulated login
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const mockUser = {
-        id: '1',
+      const response = await api.post('/auth/login', {
         username: formData.username,
-        name: formData.username.charAt(0).toUpperCase() + formData.username.slice(1),
-        email: `${formData.username}@centralbank.com`,
-        role: 'Central Bank Administrator',
-        permissions: ['view_all', 'manage_policy', 'manage_rates', 'view_audit'],
-      }
+        password: formData.password,
+      })
 
-      login(mockUser, 'mock-central-jwt-token')
-      toast.success('Login successful!')
-      navigate('/overview')
-    } catch (error) {
-      toast.error('Invalid credentials')
+      if (response.data) {
+        const { token, user } = response.data
+        login(user, token)
+        toast.success('Login successful!')
+        navigate('/overview')
+      }
+    } catch (error: any) {
+      console.error('Login error:', error)
+      toast.error(error.response?.data?.error || 'Invalid credentials')
     } finally {
       setLoading(false)
     }
@@ -121,8 +117,11 @@ const LoginPage = () => {
               sx={{ mt: 3, mb: 2 }}
               disabled={loading}
             >
-              {loading ? 'Signing In...' : 'Sign In'}
+              {loading ? <CircularProgress size={24} /> : 'Sign In'}
             </Button>
+            <Typography variant="body2" color="text.secondary" align="center">
+              Demo: admin / Flux@2026
+            </Typography>
           </Box>
         </Paper>
       </Box>
