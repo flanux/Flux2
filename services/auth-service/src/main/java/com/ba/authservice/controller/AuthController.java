@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -21,10 +23,10 @@ public class AuthController {
             LoginResponse response = authService.login(request);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            System.err.println("Login failed: " + e.getMessage());  // ADD THIS LOG
-            e.printStackTrace();  // ADD THIS
+            System.err.println("Login failed: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(401)
-                .body(Map.of("error", e.getMessage()));  // RETURN ERROR MESSAGE
+                .body(Map.of("error", e.getMessage()));
         }
     }
     
