@@ -42,7 +42,9 @@ const LoginPage = () => {
       })
 
       if (response.data) {
-        const { token, user } = response.data
+        // Backend returns accessToken, map to token
+        const token = response.data.accessToken || response.data.token
+        const user = response.data.user
         login(user, token)
         toast.success('Login successful!')
         navigate('/dashboard')

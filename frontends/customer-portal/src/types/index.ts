@@ -2,10 +2,11 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  customerId: number;
-  role: 'CUSTOMER';
+  firstName?: string;
+  lastName?: string;
+  customerId?: number;
+  branchId?: number;
+  role: string;
 }
 
 export interface LoginRequest {
