@@ -1,0 +1,109 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "*"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowed-headers: "*"
+            allow-credentials: false
+            max-age: 3600
+      default-filters:
+        - name: AuthenticationFilter
+
+      routes:
+        - id: auth-service
+          uri: http://auth-service:8080
+          predicates:
+            - Path=/api/auth/**
+
+        - id: account-service
+          uri: http://account-service:8080
+          predicates:
+            - Path=/api/accounts/**
+          filters:
+            - StripPrefix=1
+
+        - id: customer-service
+          uri: http://customer-service:8080
+          predicates:
+            - Path=/api/customers/**
+          filters:
+            - StripPrefix=1
+
+        - id: card-service
+          uri: http://card-service:8080
+          predicates:
+            - Path=/api/cards/**
+          filters:
+            - StripPrefix=1
+
+        - id: transaction-service
+          uri: http://transaction-service:8080
+          predicates:
+            - Path=/api/transactions/**,/api/transfers/**
+          filters:
+            - StripPrefix=1
+
+        - id: loan-service
+          uri: http://loan-service:8080
+          predicates:
+            - Path=/api/loans/**
+          filters:
+            - StripPrefix=1
+
+        - id: notification-service
+          uri: http://notification-service:8080
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - StripPrefix=1
+
+        - id: reporting-service
+          uri: http://reporting-service:8080
+          predicates:
+            - Path=/api/reports/**
+          filters:
+            - StripPrefix=1
+
+        - id: ledger-service
+          uri: http://ledger-service:8080
+          predicates:
+            - Path=/api/ledger/**
+          filters:
+            - StripPrefix=1
+
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:redis}
+      port: ${SPRING_REDIS_PORT:6379}
+
+jwt:
+  secret: ${JWT_SECRET:FLUX_PRODUCTION_SECRET_CHANGE_THIS_2026}
+  expiration: 86400000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

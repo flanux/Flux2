@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  # Audit Service
+  audit-service:
+    build: ../audit-service
+    container_name: flanux-audit-service
+    restart: unless-stopped
+    ports:
+      - "8091:8091"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/audit_db
+      SPRING_DATASOURCE_USERNAME: audit_user
+      SPRING_DATASOURCE_PASSWORD: audit_pass_2024
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - flanux-network
+
+  # KYC Service
+  kyc-service:
+    build: ../kyc-service
+    container_name: flanux-kyc-service
+    restart: unless-stopped
+    ports:
+      - "8092:8092"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kyc_db
+      SPRING_DATASOURCE_USERNAME: kyc_user
+      SPRING_DATASOURCE_PASSWORD: kyc_pass_2024
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - flanux-network
+
+  # Regulatory Reporting Service
+  regulatory-reporting:
+    build: ../regulatory-reporting
+    container_name: flanux-regulatory-reporting
+    restart: unless-stopped
+    ports:
+      - "8093:8093"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/regulatory_db
+      SPRING_DATASOURCE_USERNAME: regulatory_user
+      SPRING_DATASOURCE_PASSWORD: regulatory_pass_2024
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - flanux-network
+
+  # Elasticsearch for Audit Logs (for search/analytics)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: flanux-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - flanux-network
+
+  # Kibana for Audit Log Visualization
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: flanux-kibana
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - flanux-network
+
+  # MinIO for Document Storage (KYC docs, reports)
+  minio:
+    image: minio/minio:latest
+    container_name: flanux-minio
+    restart: unless-stopped
+    ports:
+      - "9001:9000"
+      - "9002:9001"
+    environment:
+      MINIO_ROOT_USER: flanux_admin
+      MINIO_ROOT_PASSWORD: flanux_minio_2024
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - flanux-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+networks:
+  flanux-network:
+    external: true
+
+volumes:
+  elasticsearch-data:
+    driver: local
+  minio-data:
+    driver: local

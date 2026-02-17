@@ -1,0 +1,301 @@
+version: '3.9'
+
+# ==============================================================================
+# FLUX BANKING SYSTEM - PRODUCTION DEPLOYMENT
+# ==============================================================================
+# This docker-compose.yml uses pre-built images from GitHub Container Registry.
+# 
+# Quick Start:
+#   1. Set GITHUB_USER in .env file (or export GITHUB_USER=your-username)
+#   2. Run: docker-compose -f docker-compose.prod.yml up -d
+#
+# Images are pulled from: ghcr.io/${GITHUB_USER}/flux-*
+# ==============================================================================
+
+services:
+  # ============================================
+  # DATABASE
+  # ============================================
+  database:
+    image: postgres:15
+    container_name: banking-database
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root2024}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - banking-network
+
+  # ============================================
+  # MESSAGE BROKER - KAFKA & ZOOKEEPER
+  # ============================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: banking-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - banking-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: banking-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - banking-network
+
+  # ============================================
+  # MICROSERVICES (PRE-BUILT IMAGES)
+  # ============================================
+  account-service:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-account-service:${VERSION:-latest}
+    container_name: account-service
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/account_db
+      SPRING_DATASOURCE_USERNAME: account_user
+      SPRING_DATASOURCE_PASSWORD: account_pass_2024
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      database:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  customer-service:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-customer-service:${VERSION:-latest}
+    container_name: customer-service
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/customer_db
+      SPRING_DATASOURCE_USERNAME: customer_user
+      SPRING_DATASOURCE_PASSWORD: customer_pass_2024
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      database:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  card-service:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-card-service:${VERSION:-latest}
+    container_name: card-service
+    ports:
+      - "8083:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/card_db
+      SPRING_DATASOURCE_USERNAME: card_user
+      SPRING_DATASOURCE_PASSWORD: card_pass_2024
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      database:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  ledger-service:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-ledger-service:${VERSION:-latest}
+    container_name: ledger-service
+    ports:
+      - "8084:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/ledger_db
+      SPRING_DATASOURCE_USERNAME: ledger_user
+      SPRING_DATASOURCE_PASSWORD: ledger_pass_2024
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      database:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  notification-service:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-notification-service:${VERSION:-latest}
+    container_name: notification-service
+    ports:
+      - "8085:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/notification_db
+      SPRING_DATASOURCE_USERNAME: notification_user
+      SPRING_DATASOURCE_PASSWORD: notification_2026
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      database:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  reporting-service:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-reporting-service:${VERSION:-latest}
+    container_name: reporting-service
+    ports:
+      - "8086:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/reporting_db
+      SPRING_DATASOURCE_USERNAME: reporting_user
+      SPRING_DATASOURCE_PASSWORD: reporting_2026
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      database:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  loan-service:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-loan-service:${VERSION:-latest}
+    container_name: loan-service
+    ports:
+      - "8087:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/loan_db
+      SPRING_DATASOURCE_USERNAME: loan_user
+      SPRING_DATASOURCE_PASSWORD: loan_2026
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      database:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  transaction-service:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-transaction-service:${VERSION:-latest}
+    container_name: transaction-service
+    ports:
+      - "8088:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/transaction_db
+      SPRING_DATASOURCE_USERNAME: transaction_user
+      SPRING_DATASOURCE_PASSWORD: transaction_2026
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      database:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  # ============================================
+  # API GATEWAY (PRE-BUILT IMAGE)
+  # ============================================
+  bank-api-gateway:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-api-gateway:${VERSION:-latest}
+    container_name: bank-api-gateway
+    ports:
+      - "8089:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - account-service
+      - customer-service
+      - card-service
+      - ledger-service
+      - loan-service
+      - notification-service
+      - reporting-service
+      - transaction-service
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  # ============================================
+  # FRONTENDS (PRE-BUILT IMAGES)
+  # ============================================
+  customer-portal:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-customer-portal:${VERSION:-latest}
+    container_name: customer-portal
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:8089
+    depends_on:
+      - bank-api-gateway
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  branch-dashboard:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-branch-dashboard:${VERSION:-latest}
+    container_name: branch-dashboard
+    ports:
+      - "3001:80"
+    environment:
+      - VITE_API_URL=http://localhost:8089
+    depends_on:
+      - bank-api-gateway
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  central-bank-portal:
+    image: ghcr.io/${GITHUB_USER:-flanux}/flux-central-bank-portal:${VERSION:-latest}
+    container_name: central-bank-portal
+    ports:
+      - "3002:80"
+    environment:
+      - VITE_API_URL=http://localhost:8089
+    depends_on:
+      - bank-api-gateway
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  banking-network:
+    driver: bridge
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  postgres_data:
+    driver: local

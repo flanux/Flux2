@@ -1,0 +1,21 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: ledger-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ledger_db}
+    username: ${SPRING_DATASOURCE_USERNAME:ledger_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:ledger_2026}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

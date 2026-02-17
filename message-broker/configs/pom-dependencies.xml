@@ -1,0 +1,60 @@
+# ============================================
+# Maven Dependencies for Kafka Integration
+# Add these to each microservice's pom.xml
+# ============================================
+
+<!-- Spring Kafka -->
+<dependency>
+    <groupId>org.springframework.kafka</groupId>
+    <artifactId>spring-kafka</artifactId>
+</dependency>
+
+<!-- Kafka Clients -->
+<dependency>
+    <groupId>org.apache.kafka</groupId>
+    <artifactId>kafka-clients</artifactId>
+</dependency>
+
+<!-- JSON Serialization -->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+</dependency>
+
+<!-- Avro (Optional - for Schema Registry) -->
+<dependency>
+    <groupId>org.apache.avro</groupId>
+    <artifactId>avro</artifactId>
+    <version>1.11.3</version>
+</dependency>
+
+<dependency>
+    <groupId>io.confluent</groupId>
+    <artifactId>kafka-avro-serializer</artifactId>
+    <version>7.5.0</version>
+</dependency>
+
+<!-- Spring Kafka Test (for testing) -->
+<dependency>
+    <groupId>org.springframework.kafka</groupId>
+    <artifactId>spring-kafka-test</artifactId>
+    <scope>test</scope>
+</dependency>
+
+<!-- Lombok (optional but helpful) -->
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <optional>true</optional>
+</dependency>
+
+<!-- ============================================ -->
+<!-- Add Confluent Repository for Avro Support  -->
+<!-- ============================================ -->
+
+<repositories>
+    <repository>
+        <id>confluent</id>
+        <url>https://packages.confluent.io/maven/</url>
+    </repository>
+</repositories>
