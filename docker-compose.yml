@@ -256,6 +256,8 @@ services:
       context: ./frontends/customer-portal
       dockerfile: Dockerfile
     container_name: customer-portal
+    ports:
+      - "3000:80"
     depends_on:
       - bank-api-gateway
     networks:
@@ -267,6 +269,8 @@ services:
       context: ./frontends/branch-dashboard
       dockerfile: Dockerfile
     container_name: branch-dashboard
+    ports:
+      - "3001:80"
     depends_on:
       - bank-api-gateway
     networks:
@@ -278,23 +282,9 @@ services:
       context: ./frontends/central-bank-portal
       dockerfile: Dockerfile
     container_name: central-bank-portal
-    depends_on:
-      - bank-api-gateway
-    networks:
-      - banking-network
-    restart: unless-stopped
-
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    container_name: flux-nginx
     ports:
-      - "80:80"
+      - "3002:80"
     depends_on:
-      - customer-portal
-      - branch-dashboard
-      - central-bank-portal
       - bank-api-gateway
     networks:
       - banking-network
