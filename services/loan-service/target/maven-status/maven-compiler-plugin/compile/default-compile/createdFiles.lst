@@ -1,5 +1,0 @@
-com/ba/loanservice/controller/LoanController.class
-com/ba/loanservice/model/Loan.class
-com/ba/loanservice/repository/LoanRepository.class
-com/ba/loanservice/LoanServiceApplication.class
-com/ba/loanservice/service/LoanService.class

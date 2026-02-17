@@ -1,5 +1,0 @@
-com/ba/transactionservice/TransactionServiceApplication.class
-com/ba/transactionservice/controller/TransactionController.class
-com/ba/transactionservice/repository/TransactionRepository.class
-com/ba/transactionservice/model/Transaction.class
-com/ba/transactionservice/service/TransactionService.class

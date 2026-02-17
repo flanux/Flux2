@@ -1,5 +1,0 @@
-/workspaces/Flux2/services/transaction-service/src/main/java/com/ba/transactionservice/TransactionServiceApplication.java
-/workspaces/Flux2/services/transaction-service/src/main/java/com/ba/transactionservice/controller/TransactionController.java
-/workspaces/Flux2/services/transaction-service/src/main/java/com/ba/transactionservice/model/Transaction.java
-/workspaces/Flux2/services/transaction-service/src/main/java/com/ba/transactionservice/repository/TransactionRepository.java
-/workspaces/Flux2/services/transaction-service/src/main/java/com/ba/transactionservice/service/TransactionService.java

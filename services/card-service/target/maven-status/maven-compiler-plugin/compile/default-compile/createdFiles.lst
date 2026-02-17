@@ -1,5 +1,0 @@
-com/ba/cardservice/model/Card.class
-com/ba/cardservice/repository/CardRepository.class
-com/ba/cardservice/service/CardService.class
-com/ba/cardservice/CardServiceApplication.class
-com/ba/cardservice/controller/CardController.class
