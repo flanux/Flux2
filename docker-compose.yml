@@ -1,14 +1,7 @@
-
 services:
-
-  # ============================================
-  # REDIS
-  # ============================================
   redis:
     image: redis:7
     container_name: banking-redis
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -17,14 +10,9 @@ services:
     networks:
       - banking-network
 
-  # ============================================
-  # DATABASE
-  # ============================================
   database:
     image: postgres:15
     container_name: banking-database
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root2024}
@@ -39,17 +27,12 @@ services:
     networks:
       - banking-network
 
-  # ============================================
-  # MESSAGE BROKER - KAFKA & ZOOKEEPER
-  # ============================================
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: banking-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
     networks:
       - banking-network
 
@@ -58,8 +41,6 @@ services:
     container_name: banking-kafka
     depends_on:
       - zookeeper
-    ports:
-      - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -70,16 +51,11 @@ services:
     networks:
       - banking-network
 
-  # ============================================
-  # MICROSERVICES
-  # ============================================
   account-service:
     build:
       context: ./services/account-service
       dockerfile: Dockerfile
     container_name: account-service
-    ports:
-      - "8081:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/account_db
       SPRING_DATASOURCE_USERNAME: account_user
@@ -99,8 +75,6 @@ services:
       context: ./services/customer-service
       dockerfile: Dockerfile
     container_name: customer-service
-    ports:
-      - "8082:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/customer_db
       SPRING_DATASOURCE_USERNAME: customer_user
@@ -120,8 +94,6 @@ services:
       context: ./services/card-service
       dockerfile: Dockerfile
     container_name: card-service
-    ports:
-      - "8083:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/card_db
       SPRING_DATASOURCE_USERNAME: card_user
@@ -141,8 +113,6 @@ services:
       context: ./services/ledger-service
       dockerfile: Dockerfile
     container_name: ledger-service
-    ports:
-      - "8084:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/ledger_db
       SPRING_DATASOURCE_USERNAME: ledger_user
@@ -162,8 +132,6 @@ services:
       context: ./services/notification-service
       dockerfile: Dockerfile
     container_name: notification-service
-    ports:
-      - "8085:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/notification_db
       SPRING_DATASOURCE_USERNAME: notification_user
@@ -183,8 +151,6 @@ services:
       context: ./services/reporting-service
       dockerfile: Dockerfile
     container_name: reporting-service
-    ports:
-      - "8086:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/reporting_db
       SPRING_DATASOURCE_USERNAME: reporting_user
@@ -204,8 +170,6 @@ services:
       context: ./services/loan-service
       dockerfile: Dockerfile
     container_name: loan-service
-    ports:
-      - "8087:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/loan_db
       SPRING_DATASOURCE_USERNAME: loan_user
@@ -225,8 +189,6 @@ services:
       context: ./services/transaction-service
       dockerfile: Dockerfile
     container_name: transaction-service
-    ports:
-      - "8088:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/transaction_db
       SPRING_DATASOURCE_USERNAME: transaction_user
@@ -246,8 +208,6 @@ services:
       context: ./services/auth-service
       dockerfile: Dockerfile
     container_name: auth-service
-    ports:
-      - "8090:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/auth_db
       SPRING_DATASOURCE_USERNAME: auth_user
@@ -267,20 +227,15 @@ services:
       - banking-network
     restart: unless-stopped
 
-  # ============================================
-  # API GATEWAY
-  # ============================================
   bank-api-gateway:
     build:
       context: ./bank-api-gateway
       dockerfile: Dockerfile
     container_name: bank-api-gateway
-    ports:
-      - "8089:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_REDIS_HOST: redis          
-      SPRING_REDIS_PORT: 6379           
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
     depends_on:
       - account-service
       - customer-service
@@ -296,18 +251,11 @@ services:
       - banking-network
     restart: unless-stopped
 
-  # ============================================
-  # FRONTENDS
-  # ============================================
   customer-portal:
     build:
       context: ./frontends/customer-portal
       dockerfile: Dockerfile
     container_name: customer-portal
-    ports:
-      - "3000:80"
-    environment:
-      - VITE_API_URL=http://localhost:8089
     depends_on:
       - bank-api-gateway
     networks:
@@ -319,10 +267,6 @@ services:
       context: ./frontends/branch-dashboard
       dockerfile: Dockerfile
     container_name: branch-dashboard
-    ports:
-      - "3001:80"
-    environment:
-      - VITE_API_URL=http://localhost:8089
     depends_on:
       - bank-api-gateway
     networks:
@@ -334,26 +278,32 @@ services:
       context: ./frontends/central-bank-portal
       dockerfile: Dockerfile
     container_name: central-bank-portal
-    ports:
-      - "3002:80"
-    environment:
-      - VITE_API_URL=http://localhost:8089
     depends_on:
       - bank-api-gateway
     networks:
       - banking-network
     restart: unless-stopped
 
-# ============================================
-# NETWORKS
-# ============================================
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: flux-nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - customer-portal
+      - branch-dashboard
+      - central-bank-portal
+      - bank-api-gateway
+    networks:
+      - banking-network
+    restart: unless-stopped
+
 networks:
   banking-network:
     driver: bridge
 
-# ============================================
-# VOLUMES
-# ============================================
 volumes:
   postgres_data:
     driver: local
